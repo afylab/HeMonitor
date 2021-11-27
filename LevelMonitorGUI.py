@@ -86,37 +86,35 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         self.fill_button.clicked.connect(self.toggle_fill_mode)
 
     @inlineCallbacks
-    def connectLabRAD(self, equip):
+    def connectLabRAD(self):
         try:
             from labrad.wrappers import connectAsync
             self.cxn = yield connectAsync('localhost', password='pass')
             self.lm = self.cxn.lm_510
-            self.lm.select_device()
-            self.lm.set_sample_mode('S')
-            self.lm.set_units("%")
-            self.lm.set_sample_interval(self.params['default interval'])
+            yield self.lm.select_device()
+            yield self.lm.set_sample_mode('S')
+            yield self.lm.set_units("%")
+            yield self.lm.set_sample_interval(self.params['default interval'])
             self.label_interval.setText(self.interval)
-            
-            print("Starting initial sample")
-            self.lm.prep_measure()
-            
+
             self.dv = self.cxn.data_vault
-            dv.set_nanosquid_system(self.params['nanosquid system'])
-            
+            self.dv.set_nanosquid_system(self.params['nanosquid system'])
+
             date = datetime.now()
             datestamp = date.strftime("%Y-%m-%d %H:%M:%S")
-            dv.new("LHe Level - "+datestamp, ["time (hours)"], ["volume (%)", "level (in)"])
-            dv.add_parameter('Start date and time', datestamp)
-            dset = dv.current_identifier()
-            print("Saving data to:", dset)
+            self.dv.new("LHe Level - "+datestamp, ["time (hours)"], ["volume (%)", "level (in)"])
+            self.dv.add_parameter('Start date and time', datestamp)
+
+            # dset = self.dv.current_identifier()
+            # print("Saving data to:", dset)
 
             self.label_server_status.setText("Connected")
             self.label_server_status.setStyleSheet("#label_server_status{" +
                 "color: rgb(13, 192, 13);}")
+            yield self.monitor()
         except:
             from traceback import print_exc
             print_exc()
-        yield self.monitor()
 
     def disconnectLabRAD(self):
         self.monitoring = False
@@ -129,18 +127,23 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
     @inlineCallbacks
     def monitor(self):
         self.monitoring = True
+
+        print("Starting initial sample")
+        yield self.lm.prep_measure()
+        yield self.sleep(20)
+
         while self.monitoring:
             N = self.data.size
             try:
-                current = lm.get_measure()
+                current = yield self.lm.get_measure()
                 percent = round(float(current.replace(" %","")),2)
                 inches = round(float(percent*self.params['active length']/100),2)
 
                 if inches != self.level:
-                    t = (datetime.now() - t0).total_seconds()/3600.0
+                    t = (datetime.now() - self.t0).total_seconds()/3600.0
                     self.level = inches
                     self.dv.add((t, percent, inches))
-                    self.data = np.append(self.data, [[t, percent, inches]])
+                    self.data = np.append(self.data, [[t, percent, inches]], axis=0)
             except:
                 from traceback import print_exc
                 print_exc()

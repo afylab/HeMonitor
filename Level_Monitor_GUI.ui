@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>900</width>
-    <height>402</height>
+    <height>423</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,7 +63,7 @@ border-radius: 5px
       <x>9</x>
       <y>10</y>
       <width>500</width>
-      <height>375</height>
+      <height>401</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -79,7 +79,7 @@ border-radius: 5px
       <x>520</x>
       <y>10</y>
       <width>401</width>
-      <height>400</height>
+      <height>411</height>
      </rect>
     </property>
     <property name="frameShape">
@@ -186,7 +186,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>65</x>
-       <y>220</y>
+       <y>240</y>
        <width>281</width>
        <height>31</height>
       </rect>
@@ -227,8 +227,8 @@ border-radius: 5px
     <widget class="QPushButton" name="fill_button">
      <property name="geometry">
       <rect>
-       <x>20</x>
-       <y>180</y>
+       <x>10</x>
+       <y>205</y>
        <width>130</width>
        <height>31</height>
       </rect>
@@ -257,7 +257,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>250</y>
+       <y>270</y>
        <width>171</width>
        <height>31</height>
       </rect>
@@ -270,7 +270,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>285</y>
+       <y>305</y>
        <width>161</width>
        <height>31</height>
       </rect>
@@ -283,7 +283,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>320</y>
+       <y>340</y>
        <width>171</width>
        <height>31</height>
       </rect>
@@ -296,7 +296,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>250</y>
+       <y>270</y>
        <width>171</width>
        <height>31</height>
       </rect>
@@ -309,20 +309,20 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>285</y>
+       <y>305</y>
        <width>171</width>
        <height>31</height>
       </rect>
      </property>
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;- #.## L/hour&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;- #.## %/hour&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
     <widget class="QLabel" name="label_time">
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>320</y>
+       <y>340</y>
        <width>171</width>
        <height>31</height>
       </rect>
@@ -335,7 +335,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>355</y>
+       <y>375</y>
        <width>191</width>
        <height>31</height>
       </rect>
@@ -348,7 +348,7 @@ border-radius: 5px
      <property name="geometry">
       <rect>
        <x>200</x>
-       <y>355</y>
+       <y>375</y>
        <width>141</width>
        <height>31</height>
       </rect>
@@ -360,8 +360,8 @@ border-radius: 5px
     <widget class="QPushButton" name="measure_button">
      <property name="geometry">
       <rect>
-       <x>210</x>
-       <y>180</y>
+       <x>200</x>
+       <y>205</y>
        <width>130</width>
        <height>31</height>
       </rect>
@@ -400,6 +400,32 @@ border-radius: 5px
      </property>
      <property name="text">
       <string>Update</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_dv_static">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>170</y>
+       <width>191</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;DataVault:&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+    </widget>
+    <widget class="QLabel" name="label_dv">
+     <property name="geometry">
+      <rect>
+       <x>200</x>
+       <y>170</y>
+       <width>171</width>
+       <height>31</height>
+      </rect>
+     </property>
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;identifier&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
     </widget>
    </widget>

@@ -8,9 +8,9 @@ params = {
 'belly top level':33,
 'belly L per in':5.26,
 'tail L per in':2.8, # Rough estimate based on magnet geometry
-'fill level':13.7,
+'fill level':14.06,
 'default interval':'05:00:00',
-'fillmode interval':'00:01:00',
+'fillmode interval':'00:03:00',
 'nanosquid system':'3He'
 }
 

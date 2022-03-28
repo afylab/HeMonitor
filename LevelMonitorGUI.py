@@ -70,7 +70,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         self.setWindowTitle("He Level Monitor")
 
         self.levelPlot = pg.PlotWidget(self.frame_level_plot, viewBox=CustomViewBox())
-        self.levelPlot.setGeometry(QtCore.QRect(0, 0, 500, 375))
+        self.levelPlot.setGeometry(QtCore.QRect(0, 0, 500, 400))
         self.levelPlot.setLabel('left', 'Level', units = '%')
         self.levelPlot.setLabel('bottom', 'Time', units = 'h')
         self.levelPlot.showAxis('right', show = True)
@@ -105,8 +105,8 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             self.dv.new("LHe Level - "+datestamp, ["time (hours)"], ["volume (%)", "level (in)"])
             self.dv.add_parameter('Start date and time', datestamp)
 
-            # dset = self.dv.current_identifier()
-            # print("Saving data to:", dset)
+            dset = yield self.dv.current_identifier()
+            self.label_dv.setText(dset)
 
             self.label_server_status.setText("Connected")
             self.label_server_status.setStyleSheet("#label_server_status{" +
@@ -144,6 +144,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                     self.level = inches
                     self.dv.add((t, percent, inches))
                     self.data = np.append(self.data, [[t, percent, inches]], axis=0)
+                    print(t, percent, inches)
             except:
                 from traceback import print_exc
                 print_exc()
@@ -169,12 +170,12 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             s = interval.split(':')
             if len(s) == 3 and all(i.isdigit() for i in s) and all(float(i) <= 59 for i in s):
                 self.interval = interval
-                self.label_interval.setText(self.interval)
                 self.update_sampling_interval()
     #
 
     @inlineCallbacks
     def update_sampling_interval(self):
+        self.label_interval.setText(self.interval)
         yield self.lm.set_sample_interval(self.interval)
 
     @inlineCallbacks
@@ -229,8 +230,8 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                 else: # the default case, consider the last 4 data points
                     ix1 = max([rows-4, 0])
                 self.linfit = np.polyfit(self.data[ix1:,0], self.data[ix1:,1], 1)
-                self.rate24hr = self.linfit[0]*self.params['active length']*self.params['belly L per in']/100
-                self.label_rate.setText(str(round(self.rate24hr,2)) + " L/hour")
+                # self.rate24hr = self.linfit[0]*self.params['active length']*self.params['belly L per in']/100
+                self.label_rate.setText(str(round(self.linfit[0],2)) + " %/hour")
 
                 # Plot the 24-hour fit
                 if hasattr(self, 'fit'):

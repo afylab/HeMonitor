@@ -4,6 +4,7 @@ import pyqtgraph as pg
 import numpy as np
 from datetime import datetime, timedelta
 import mysql.connector as mysql
+import time
 
 LevelWindowUI, QtBaseClass = uic.loadUiType(r"C:\Users\Cthulhu\Downloads\HeMonitor-master\HeMonitor-master\Level_Monitor_GUI.ui")
 
@@ -93,9 +94,12 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             self.cxn = yield connectAsync('localhost', password='pass')
             self.lm = self.cxn.lm_510
             yield self.lm.select_device()
-            yield self.lm.set_sample_mode('S')
+            if self.interval != 'manual':
+                yield self.lm.set_sample_mode('S')
+                yield self.lm.set_sample_interval(self.params['default interval'])
+            else:
+                yield self.lm.set_off_mode()
             yield self.lm.set_units("%")
-            yield self.lm.set_sample_interval(self.params['default interval'])
             self.label_interval.setText(self.interval)
 
             self.dv = self.cxn.data_vault
@@ -189,7 +193,11 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         mode = yield self.lm.get_mode()
         if mode == 'Off':
             yield self.lm.set_sample_mode('S')
-            yield self.lm.measure()
+            yield self.lm.prep_measure()
+            time.sleep(5)
+            yield self.lm.prep_measure()
+
+            time.sleep(2)
             yield self.lm.set_off_mode()
         else:
             yield self.lm.prep_measure()

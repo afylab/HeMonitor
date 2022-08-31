@@ -3,8 +3,9 @@ from twisted.internet.defer import inlineCallbacks, Deferred
 import pyqtgraph as pg
 import numpy as np
 from datetime import datetime, timedelta
+import mysql.connector as mysql
 
-LevelWindowUI, QtBaseClass = uic.loadUiType(r"Level_Monitor_GUI.ui")
+LevelWindowUI, QtBaseClass = uic.loadUiType(r"C:\Users\Cthulhu\Downloads\HeMonitor-master\HeMonitor-master\Level_Monitor_GUI.ui")
 
 class CustomViewBox(pg.ViewBox):
     '''
@@ -144,6 +145,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                     self.level = inches
                     self.dv.add((t, percent, inches))
                     self.data = np.append(self.data, [[t, percent, inches]], axis=0)
+                    self.uploadToDatabase()
                     print(t, percent, inches)
             except:
                 from traceback import print_exc
@@ -171,6 +173,10 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             if len(s) == 3 and all(i.isdigit() for i in s) and all(float(i) <= 59 for i in s):
                 self.interval = interval
                 self.update_sampling_interval()
+            if interval == 'manual':
+                self.interval = interval
+                self.label_interval.setText(self.interval)
+                self.lm.set_off_mode()
     #
 
     @inlineCallbacks
@@ -180,7 +186,13 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
 
     @inlineCallbacks
     def measure_now_callback(self,c):
-        yield self.lm.prep_measure()
+        mode = yield self.lm.get_mode()
+        if mode == 'Off':
+            yield self.lm.set_sample_mode('S')
+            yield self.lm.measure()
+            yield self.lm.set_off_mode()
+        else:
+            yield self.lm.prep_measure()
     #
 
     def toggle_fill_mode(self):
@@ -278,3 +290,29 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         d = Deferred()
         self.reactor.callLater(secs,d.callback,'Sleeping')
         return d
+
+    def uploadToDatabase(self):
+        try:
+            values = self.data
+            #values = getTheErrayOfValues(data)
+            # print('connecting to MySql')
+            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_15K_systemBot', passwd='rwnVv3%MXns3j;X{',
+                                 database='afy2003_15K_system')
+            # print("connection has been established")
+            cursor = conn.cursor()
+            now = datetime.now()
+            formatted_date = now.strftime('%Y%m%d%H%M%S')
+            if self.level < self.params['belly bottom level']: # Level is in the tail
+                volume = self.level*self.params['tail L per in']
+            else:
+                volume_in_tail = self.params['belly bottom level']*self.params['tail L per in']
+                inches_in_belly = self.level - self.params['belly bottom level']
+                volume = volume_in_tail + inches_in_belly*self.params['belly L per in']
+            try:
+                cursor.execute("INSERT INTO Status VALUES (%s,%s,%s,%s)",(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
+                conn.commit()
+            except mysql.Error as err:
+                print("Something went wrong: {}".format(err))
+            conn.close()
+        except Exception as e:
+            print(e)

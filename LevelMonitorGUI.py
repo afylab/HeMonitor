@@ -181,12 +181,14 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                 self.interval = interval
                 self.label_interval.setText(self.interval)
                 self.lm.set_off_mode()
+                self.lm.get_mode()
     #
 
     @inlineCallbacks
     def update_sampling_interval(self):
         self.label_interval.setText(self.interval)
         yield self.lm.set_sample_interval(self.interval)
+        yield self.lm.set_sample_mode('S')
 
     @inlineCallbacks
     def measure_now_callback(self,c):

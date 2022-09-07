@@ -304,10 +304,11 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
     def uploadToDatabase(self):
         try:
             values = self.data
+            pss = np.genfromtxt(d = np.genfromtxt("C:\\Users\\Cthulhu\\Software\\password.txt", dtype = 'str')
             #values = getTheErrayOfValues(data)
             # print('connecting to MySql')
-            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_15K_systemBot', passwd='rwnVv3%MXns3j;X{',
-                                 database='afy2003_15K_system')
+            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_LHeBufferBot', passwd=pss,
+                                 database='afy2003_LHeMonitor')
             # print("connection has been established")
             cursor = conn.cursor()
             now = datetime.now()
@@ -319,7 +320,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                 inches_in_belly = self.level - self.params['belly bottom level']
                 volume = volume_in_tail + inches_in_belly*self.params['belly L per in']
             try:
-                cursor.execute("INSERT INTO Status VALUES (%s,%s,%s,%s)",(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
+                cursor.execute("INSERT INTO 15K VALUES (%s,%s,%s,%s);",(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
                 conn.commit()
             except mysql.Error as err:
                 print("Something went wrong: {}".format(err))

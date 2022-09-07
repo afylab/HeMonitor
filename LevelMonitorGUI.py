@@ -304,11 +304,11 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
     def uploadToDatabase(self):
         try:
             values = self.data
-            pss = np.genfromtxt(d = np.genfromtxt("C:\\Users\\Cthulhu\\Software\\password.txt", dtype = 'str')
+            pss = np.genfromtxt("C:\\Users\\Cthulhu\\Software\\password.txt", dtype = 'str')
             #values = getTheErrayOfValues(data)
             # print('connecting to MySql')
-            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_LHeBufferBot', passwd=pss,
-                                 database='afy2003_LHeMonitor')
+            print(str(pss))
+            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_LHeBufferBot', passwd=str(pss), database='afy2003_LHeMonitor')
             # print("connection has been established")
             cursor = conn.cursor()
             now = datetime.now()

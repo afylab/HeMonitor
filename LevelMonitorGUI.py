@@ -5,8 +5,9 @@ import numpy as np
 from datetime import datetime, timedelta
 import mysql.connector as mysql
 import time
+from traceback import format_exc
 
-LevelWindowUI, QtBaseClass = uic.loadUiType(r"C:\Users\Cthulhu\Downloads\HeMonitor-master\HeMonitor-master\Level_Monitor_GUI.ui")
+LevelWindowUI, QtBaseClass = uic.loadUiType(r"Level_Monitor_GUI.ui")
 
 class CustomViewBox(pg.ViewBox):
     '''
@@ -106,7 +107,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             self.dv.set_nanosquid_system(self.params['nanosquid system'])
 
             date = datetime.now()
-            datestamp = date.strftime("%Y-%m-%d %H:%M:%S")
+            datestamp = date.strftime("%Y-%m-%d %H-%M-%S")
             self.dv.new("LHe Level - "+datestamp, ["time (hours)"], ["volume (%)", "level (in)"])
             self.dv.add_parameter('Start date and time', datestamp)
 
@@ -171,7 +172,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
     #
 
     def update_interval(self,c):
-        interval, done = QtWidgets.QInputDialog.getText(self, 'Sample Interval', "Enter Sampleing Interval as 00:00:00")
+        interval, done = QtWidgets.QInputDialog.getText(self, 'Sample Interval', "Enter Sampling Interval as 00:00:00")
         if done:
             s = interval.split(':')
             if len(s) == 3 and all(i.isdigit() for i in s) and all(float(i) <= 59 for i in s):
@@ -304,10 +305,10 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
     def uploadToDatabase(self):
         try:
             values = self.data
-            pss = np.genfromtxt("C:\\Users\\Cthulhu\\Software\\password.txt", dtype = 'str')
+            pss = np.genfromtxt("password.txt", dtype = 'str')
             #values = getTheErrayOfValues(data)
             # print('connecting to MySql')
-            print(str(pss))
+            # print(str(pss))
             conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_LHeBufferBot', passwd=str(pss), database='afy2003_LHeMonitor')
             # print("connection has been established")
             cursor = conn.cursor()
@@ -320,10 +321,12 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
                 inches_in_belly = self.level - self.params['belly bottom level']
                 volume = volume_in_tail + inches_in_belly*self.params['belly L per in']
             try:
-                cursor.execute("INSERT INTO 15K VALUES (%s,%s,%s,%s);",(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
+                cmd = "INSERT INTO " + str(self.params['SQL Database']) + " VALUES (%s,%s,%s,%s);"
+                cursor.execute(cmd,(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
                 conn.commit()
             except mysql.Error as err:
                 print("Something went wrong: {}".format(err))
+                print(format_exc())
             conn.close()
         except Exception as e:
-            print(e)
+            print(format_exc())

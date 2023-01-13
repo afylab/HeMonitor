@@ -11,7 +11,9 @@ params = {
 'fill level':8.27,
 'default interval':'05:00:00',
 'fillmode interval':'00:01:00',
-'nanosquid system':'1p5K'
+'nanosquid system':'1p5K',
+'pass file':"C:\\Users\\Cthulhu\\Software\\password.txt",
+'SQL Database':"15K",
 }
 
 """ The following runs the GUI"""

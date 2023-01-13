@@ -11,7 +11,8 @@ params = {
 'fill level':14.06,
 'default interval':'05:00:00',
 'fillmode interval':'00:03:00',
-'nanosquid system':'3He'
+'nanosquid system':'3He',
+'SQL Database':"300mK",
 }
 
 """ The following runs the GUI"""

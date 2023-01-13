@@ -180,8 +180,8 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             if interval == 'manual':
                 self.interval = interval
                 self.label_interval.setText(self.interval)
-                self.lm.set_off_mode()
-                self.lm.get_mode()
+                yield self.lm.set_off_mode()
+                yield self.lm.get_mode()
     #
 
     @inlineCallbacks

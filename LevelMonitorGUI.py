@@ -3,7 +3,7 @@ from twisted.internet.defer import inlineCallbacks, Deferred
 import pyqtgraph as pg
 import numpy as np
 from datetime import datetime, timedelta
-import mysql.connector as mysql
+import boto3
 import time
 from traceback import format_exc
 
@@ -43,7 +43,7 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         'belly bottom level' : The number of inches indicating the bottom of the dewar belly
         'belly top level' : The number of inches indicating the top of the dewar belly
         'belly L per in' : Number of liters per inch in the belly (calculated with insert in).
-        'tail L per in': Number of liters per inch in the belly (calculated with insert in).
+        'tail L per in': Number of liters per inch in the tail (calculated with insert in).
         'fill level' : The level to fill once reached, used for calculating the time to fill.
         'default interval' : The default sampling interval.
         'System ID': The Identifier for the nanoSQUID system in datavault.
@@ -62,6 +62,13 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         self.fillstart = datetime.now()
         self.cxn = False
         self.lm = False
+
+        # Read passwords from file
+        with open('./password.txt', 'r') as fl:
+            pwds = fl.readlines()
+            self.ACCESS_ID = pwds[0].strip()
+            self.ACCESS_KEY = pwds[1].strip()
+
 
         self.setupUi(self)
         self.setupAdditionalUi()
@@ -181,8 +188,8 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
             if interval == 'manual':
                 self.interval = interval
                 self.label_interval.setText(self.interval)
-                self.lm.set_off_mode()
-                self.lm.get_mode()
+                yield self.lm.set_off_mode()
+                yield self.lm.get_mode()
     #
 
     @inlineCallbacks
@@ -303,30 +310,27 @@ class LevelMonitorGUI(QtWidgets.QMainWindow, LevelWindowUI):
         return d
 
     def uploadToDatabase(self):
+        
+        client = boto3.client('timestream-write', region_name='us-east-2', aws_access_key_id=self.ACCESS_ID, aws_secret_access_key=self.ACCESS_KEY)
+        current_time = datetime.now()
+        time_current = str(int(time.time() * 1000))
+
+
+        if self.level < self.params['belly bottom level']: # Level is in the tail
+            volume = self.level*self.params['tail L per in']
+        else:
+            volume_in_tail = self.params['belly bottom level']*self.params['tail L per in']
+            inches_in_belly = self.level - self.params['belly bottom level']
+            volume = volume_in_tail + inches_in_belly*self.params['belly L per in']
+
+        dimension1 = [{'Name': 'Parameter', 'Value': 'Volume'},{'Name': 'Units', 'Value': 'Liters'}, {'Name': 'Medium Pressure Tanks', 'Value': 'Pressure'}]
+        record1 = {'Time': time_current,'Dimensions': dimension1,'MeasureName': 'Volume','MeasureValue': str(volume),'MeasureValueType': 'DOUBLE'}
+        
+        records = [record1]
         try:
-            values = self.data
-            pss = np.genfromtxt("password.txt", dtype = 'str')
-            #values = getTheErrayOfValues(data)
-            # print('connecting to MySql')
-            # print(str(pss))
-            conn = mysql.connect(host='gator4099.hostgator.com', user='afy2003_LHeBufferBot', passwd=str(pss), database='afy2003_LHeMonitor')
-            # print("connection has been established")
-            cursor = conn.cursor()
-            now = datetime.now()
-            formatted_date = now.strftime('%Y%m%d%H%M%S')
-            if self.level < self.params['belly bottom level']: # Level is in the tail
-                volume = self.level*self.params['tail L per in']
-            else:
-                volume_in_tail = self.params['belly bottom level']*self.params['tail L per in']
-                inches_in_belly = self.level - self.params['belly bottom level']
-                volume = volume_in_tail + inches_in_belly*self.params['belly L per in']
-            try:
-                cmd = "INSERT INTO " + str(self.params['SQL Database']) + " VALUES (%s,%s,%s,%s);"
-                cursor.execute(cmd,(str(100*self.level/self.params['active length']), str(self.level), str(int(volume)), str(formatted_date)))
-                conn.commit()
-            except mysql.Error as err:
-                print("Something went wrong: {}".format(err))
-                print(format_exc())
-            conn.close()
+            response = client.write_records(DatabaseName="LHe-Logging", TableName=self.params['SQL Database'], Records=records)
+            print(f"Successfully written to Timestream: {response}")
         except Exception as e:
-            print(format_exc())
+            print(f"Error writing to Timestream: {e}")
+
+

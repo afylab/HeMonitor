@@ -2,6 +2,11 @@ import sys
 from PyQt5 import QtWidgets
 from LevelMonitorGUI import LevelMonitorGUI
 
+'''
+!!!!!!!!!!!!!!!!!!!
+PARAMETERS NOT SET, USING 3HE PARAMETERS
+!!!!!!!!!!!!!!!!!!!
+'''
 params = {
 'active length':37,
 'belly bottom level':11,
@@ -11,8 +16,8 @@ params = {
 'fill level':14.06,
 'default interval':'05:00:00',
 'fillmode interval':'00:03:00',
-'nanosquid system':'3He',
-'SQL Database':"Squid3He",
+'nanosquid system':'DR',
+'SQL Database':"SquidDR",
 }
 
 """ The following runs the GUI"""

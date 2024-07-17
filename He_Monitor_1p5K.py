@@ -13,7 +13,7 @@ params = {
 'fillmode interval':'00:01:00',
 'nanosquid system':'1p5K',
 'pass file':"C:\\Users\\Cthulhu\\Software\\password.txt",
-'SQL Database':"15K",
+'SQL Database':"Squid1p5K",
 }
 
 """ The following runs the GUI"""

@@ -9,7 +9,7 @@ params = {
 'belly L per in':3.84,
 'tail L per in':0.6,
 'fill level':8.27,
-'default interval':'manual',
+'default interval':'05:00:00',
 'fillmode interval':'00:01:00',
 'nanosquid system':'1p5K',
 'pass file':"C:\\Users\\Cthulhu\\Software\\password.txt",
